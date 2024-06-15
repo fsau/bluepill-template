@@ -2,9 +2,11 @@ CROSS_COMPILE = arm-none-eabi-
 CC = $(CROSS_COMPILE)gcc
 OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
+NM = $(CROSS_COMPILE)nm
+SIZE = $(CROSS_COMPILE)size
 CPUFLAGS = -mcpu=cortex-m3 -mthumb
-CFLAGS = -Wall -Wextra -g3 -Os -MD $(CPUFLAGS) -DSTM32F1 -I./libopencm3/include
-LDFLAGS = $(CPUFLAGS) -nostartfiles -L./libopencm3/lib -Wl,-T,$(LDSCRIPT)
+CFLAGS = -g -Wall -Wextra -g3 -Os -MD $(CPUFLAGS) -DSTM32F1 -I./libopencm3/include
+LDFLAGS = $(CPUFLAGS) -nostartfiles -L./libopencm3/lib -Wl,-T,$(LDSCRIPT) -Wl,-Map,$(TARGET).map
 LDLIBS = -lopencm3_stm32f1 -lc -lnosys
 
 CSRC = main.c
@@ -12,12 +14,12 @@ OBJ = $(patsubst %.c,build/%.o,$(CSRC))
 TARGET = build/main
 LDSCRIPT = bluepill.ld
 
-all: $(TARGET).bin $(TARGET).dis
+all: $(TARGET).bin $(TARGET).dis $(TARGET).sym $(TARGET).size $(TARGET).map
 
 build:
 	mkdir -p build
 
-$(TARGET).elf: $(OBJ) libopencm3 | build
+$(TARGET).elf: $(OBJ) libopencm3 $(LDSCRIPT) | build
 	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
 
 build/%.o: %.c | build
@@ -41,6 +43,12 @@ build/%.bin: build/%.elf
 
 build/%.dis: build/%.elf
 	$(OBJDUMP) -S -g $< > $@
+
+build/%.sym: build/%.elf
+	$(NM) $< > $@
+
+build/%.size: build/%.elf
+	$(SIZE) $< > $@
 
 prog: $(TARGET).bin
 	st-flash write $< 0x08000000

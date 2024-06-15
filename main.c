@@ -1,7 +1,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
-// __attribute__ ((section (".code_in_ram"))) 
+// __attribute__ ((section (".ramtext*"))) 
 void loop(void)
 {
 	for(;;){
