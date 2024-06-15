@@ -1,9 +1,3 @@
-bin/
-*.elf
-*.bin
-generated.*.ld
 .history/
 .vscode/
-my-project/libopencm3
-*.d
-*.o
+build/
