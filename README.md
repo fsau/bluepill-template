@@ -1,4 +1,4 @@
-# README
+# STM32F103 (Bluepill) Blink Template
 
 ## Importing `libopencm3`
 
