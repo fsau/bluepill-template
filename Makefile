@@ -5,7 +5,7 @@ OBJDUMP = $(CROSS_COMPILE)objdump
 NM = $(CROSS_COMPILE)nm
 SIZE = $(CROSS_COMPILE)size
 CPUFLAGS = -mcpu=cortex-m3 -mthumb
-CFLAGS = -g -Wall -Wextra -g3 -Os -MD $(CPUFLAGS) -DSTM32F1 -I./libopencm3/include
+CFLAGS = -Wall -Wextra -g3 -Os -MD $(CPUFLAGS) -DSTM32F1 -I./libopencm3/include
 LDFLAGS = $(CPUFLAGS) -nostartfiles -L./libopencm3/lib -Wl,-T,$(LDSCRIPT) -Wl,-Map,$(TARGET).map
 LDLIBS = -lopencm3_stm32f1 -lc -lnosys
 
@@ -14,16 +14,18 @@ OBJ = $(patsubst %.c,build/%.o,$(CSRC))
 TARGET = build/main
 LDSCRIPT = bluepill.ld
 
-all: $(TARGET).bin $(TARGET).dis $(TARGET).sym $(TARGET).size $(TARGET).map
+all: libopencm3 $(TARGET).bin $(TARGET).dis $(TARGET).sym $(TARGET).size $(TARGET).map
 
 build:
 	mkdir -p build
 
-$(TARGET).elf: $(OBJ) libopencm3 $(LDSCRIPT) | build
+$(TARGET).elf: $(OBJ) $(LDSCRIPT) | build
 	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
 
 build/%.o: %.c | build
 	$(CC) $(CFLAGS) -c $< -o $@
+
+-include $(OBJ:.o=.d)
 
 .PHONY: libopencm3
 libopencm3:
