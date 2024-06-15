@@ -1,5 +1,3 @@
-# Compile all but libopencm3: make -B -o libopencm3
-
 CROSS_COMPILE = arm-none-eabi-
 CC = $(CROSS_COMPILE)gcc
 OBJCOPY = $(CROSS_COMPILE)objcopy
