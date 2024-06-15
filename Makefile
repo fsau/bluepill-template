@@ -1,3 +1,5 @@
+# Compile all but libopencm3: make -B -o libopencm3
+
 CROSS_COMPILE = arm-none-eabi-
 CC = $(CROSS_COMPILE)gcc
 OBJCOPY = $(CROSS_COMPILE)objcopy
@@ -5,11 +7,11 @@ OBJDUMP = $(CROSS_COMPILE)objdump
 NM = $(CROSS_COMPILE)nm
 SIZE = $(CROSS_COMPILE)size
 CPUFLAGS = -mcpu=cortex-m3 -mthumb
-CFLAGS = -Wall -Wextra -g3 -Os -MD $(CPUFLAGS) -DSTM32F1 -I./libopencm3/include
+CFLAGS = -Wall -Wextra -g3 -Os -MD $(CPUFLAGS) -DSTM32F1 -I./libopencm3/include -Imodules
 LDFLAGS = $(CPUFLAGS) -nostartfiles -L./libopencm3/lib -Wl,-T,$(LDSCRIPT) -Wl,-Map,$(TARGET).map
 LDLIBS = -lopencm3_stm32f1 -lc -lnosys
 
-CSRC = main.c
+CSRC = $(wildcard modules/*.c) main.c 
 OBJ = $(patsubst %.c,build/%.o,$(CSRC))
 TARGET = build/main
 LDSCRIPT = bluepill.ld
@@ -18,6 +20,7 @@ all: libopencm3 $(TARGET).bin $(TARGET).dis $(TARGET).sym $(TARGET).size $(TARGE
 
 build:
 	mkdir -p build
+	mkdir -p build/modules
 
 $(TARGET).elf: $(OBJ) $(LDSCRIPT) | build
 	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
