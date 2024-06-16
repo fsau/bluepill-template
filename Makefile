@@ -2,6 +2,7 @@ CROSS_COMPILE = arm-none-eabi-
 CC = $(CROSS_COMPILE)gcc
 OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
+READELF = $(CROSS_COMPILE)readelf
 NM = $(CROSS_COMPILE)nm
 SIZE = $(CROSS_COMPILE)size
 CPUFLAGS = -mcpu=cortex-m3 -mthumb
@@ -14,7 +15,7 @@ OBJ = $(patsubst %.c,build/%.o,$(CSRC))
 TARGET = build/main
 LDSCRIPT = bluepill.ld
 
-all: libopencm3 $(TARGET).bin $(TARGET).dis $(TARGET).sym $(TARGET).size $(TARGET).map
+all: libopencm3 $(TARGET).bin $(TARGET).dis $(TARGET).sym $(TARGET).size $(TARGET).map $(TARGET).elf.txt
 
 build:
 	mkdir -p build
@@ -52,6 +53,9 @@ build/%.sym: build/%.elf
 
 build/%.size: build/%.elf
 	$(SIZE) $< > $@
+
+build/%.elf.txt: build/%.elf
+	$(READELF) -a $< > $@
 
 prog: $(TARGET).bin
 	st-flash write $< 0x08000000

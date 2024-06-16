@@ -1,6 +1,6 @@
 #include <libopencm3/stm32/gpio.h>
 
-// __attribute__ ((section (".ramtext*")))
+__attribute__ ((section (".code_in_ram")))
 void blink(void)
 {
     for (;;)
