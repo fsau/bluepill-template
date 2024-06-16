@@ -29,19 +29,6 @@ build/%.o: %.c | build
 
 -include $(OBJ:.o=.d)
 
-.PHONY: libopencm3
-libopencm3:
-	if [ ! -f libopencm3/Makefile ]; then \
-		git submodule init; \
-		git submodule update; \
-	fi
-	$(MAKE) -C libopencm3 lib/stm32/f1
-
-.PHONY: clean
-clean:
-	-rm -rf build
-	#-$(MAKE) -C libopencm3 clean
-
 build/%.bin: build/%.elf
 	$(OBJCOPY) -O binary $< $@
 
@@ -56,6 +43,19 @@ build/%.size: build/%.elf
 
 build/%.elf.txt: build/%.elf
 	$(READELF) -a $< > $@
+
+.PHONY: libopencm3 clean prog
+
+libopencm3:
+	if [ ! -f libopencm3/Makefile ]; then \
+		git submodule init; \
+		git submodule update; \
+	fi
+	$(MAKE) -C libopencm3 lib/stm32/f1
+
+clean:
+	-rm -r build
+	#-$(MAKE) -C libopencm3 clean
 
 prog: $(TARGET).bin
 	st-flash write $< 0x08000000
